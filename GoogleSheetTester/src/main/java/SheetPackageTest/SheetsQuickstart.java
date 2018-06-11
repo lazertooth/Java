@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.*;
 
 public class SheetsQuickstart {
     private static final String APPLICATION_NAME = "CSC131 Computer Software Engr - SECTION 01";
@@ -76,8 +77,29 @@ public class SheetsQuickstart {
         }
     	return (String) element.get(0).get(0);	
     }
+    // builds a random key and returns it
+    public static String setKey()throws IOException{
+    	Random rand = new Random();
+    	int randomKey = rand.nextInt(10000-1000) + 1000;   	
+    	Sheets service = getSheetsService();
+    	final String range = "G32:P";
+    	List<Request> requests = new ArrayList<>();  
+        //Adding random key to row and column
+        List<CellData> values = new ArrayList<>();
+        values.add(new CellData().setUserEnteredValue(new ExtendedValue().setNumberValue((double)randomKey)));
+        requests.add(new Request()
+        		.setUpdateCells(new UpdateCellsRequest()
+        		.setStart(new GridCoordinate().setSheetId(0).setRowIndex(31).setColumnIndex(6))
+        		.setRows(Arrays.asList(new RowData().setValues(values)))
+        		.setFields("userEnteredValue,userEnteredFormat.backgroundColor")));     
+        BatchUpdateSpreadsheetRequest batchUpdateRequest = new BatchUpdateSpreadsheetRequest().setRequests(requests);
+     	service.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute();
+        ValueRange response = service.spreadsheets().values().get(spreadsheetId, range).execute();
+        List<List<Object>> element = response.getValues();
+    	return (String) element.get(0).get(0);	
+    }
     
-    public static void updateSheet()throws IOException{
+    public static void getStudentData()throws IOException{
      	//Set Range of spread sheet Ex: 
         Sheets service = getSheetsService();
     	final String range = "!A2:E";
@@ -87,14 +109,15 @@ public class SheetsQuickstart {
         if(element == null || element.isEmpty())
             System.out.println("No data found.");
         else{
-            System.out.println("Name -- Major");
+            System.out.println("Name -- Student ID");
             for (List row : element) {
-                // Print columns A and E, which correspond to indices 0 and 4.
-                System.out.printf("%s, %s\n", row.get(0), row.get(1));
+                // Print columns A and E, which correspond to indices 0 and 2.
+                System.out.printf("%s, %s\n", row.get(0), row.get(2));
             }
         }
     }
     
+
     //
     public static void updateSheet(String stringValue, int sheetId, int rowIndex, int columIndex)throws IOException{
     	Sheets service = getSheetsService();
@@ -111,6 +134,7 @@ public class SheetsQuickstart {
         BatchUpdateSpreadsheetRequest batchUpdateRequest = new BatchUpdateSpreadsheetRequest().setRequests(requests);
      	service.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute();
     }
+
     
     public static void main(String[] args) throws IOException {
         
@@ -120,8 +144,8 @@ public class SheetsQuickstart {
     	/*
     	Sheets service = getSheetsService();
         List<Request> requests = new ArrayList<>();
-//        getKey();
-        
+        getStudentData();
+        System.out.println(setKey());
         
         //Adding DATE to row and column
         List<CellData> values = new ArrayList<>();

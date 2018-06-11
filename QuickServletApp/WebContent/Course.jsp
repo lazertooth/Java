@@ -9,8 +9,10 @@
 	<font size="4">Welcome Professor</font>
     <fieldset>
     	<p>
+    	<form action="QuickServlet" method="post">   	
+<!--   	<form action="${pageContext.request.contextPath}/RandKey.jsp" method="post">   -->  
     		<label>Course Selection:</label>
-    		<select id = "myList">
+    		<select id = "myList" name="courses">
     			<option value = "CSC20"> CSC 20</option>
     			<option value = "CSC130"> CSC 130</option>
     			<option value = "CSC131"> CSC 131</option>
@@ -18,8 +20,8 @@
     			<option value = "CSC135"> CSC 135</option>
     		</select>
     	</p>
-    	<form action="${pageContext.request.contextPath}/RandKey.jsp" method="post">
-    		<button type="submit" name="button" value="button1">Submit</button>		
+    	<input type="hidden" value="CourseSelect" name="FormName"/>
+    	<input type="submit" value="Generate Key">
     	</form>
     </fieldset>
     </font>

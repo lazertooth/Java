@@ -12,10 +12,11 @@
     	<form action="QuickServlet" method="post">
         	User Name: <input type="text" size="10" name="userTeacher"/>
         	Password:  <input type="text" size="10" name="passTeacher"/>
-        </form>
+ 
+
         </p>
-        <form action="${pageContext.request.contextPath}/Course.jsp" method="post">
-        	<button type="submit" name="button" value="button1">Submit</button>	
+			<input type="hidden" value="TeacherLogin" name="FormName"/>
+        	<input type="submit" value="Submit">
     	</form>
     </fieldset>
 	</font>
