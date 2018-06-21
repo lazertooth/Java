@@ -5,15 +5,16 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Random Key</title>
 </head>
-<link rel = "stylesheet" type = "text/css" href = "myStyle.css" />
+
+<body background="C:\Users\p-chandra\Documents\Workspace\QuickServletApp\WebContent\temp.jpg">>
 <font color="white">
+${message}
+${name}
+<%
 
-    <%@page import="java.util.*" %>
-	<%
-	Random rand = new Random();
-	int randomKey = rand.nextInt(10000-1000) + 1000;
-	out.println("Todays Attendance Key is " + randomKey);
-	%>
-
+request.getAttribute("message");
+request.getAttribute("name");
+%>
+</font>
 </body>
 </html>
