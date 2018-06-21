@@ -19,10 +19,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.*;
 
 public class SheetsQuickstart {
     private static final String APPLICATION_NAME = "CSC131 Computer Software Engr - SECTION 01";
@@ -77,29 +79,8 @@ public class SheetsQuickstart {
         }
     	return (String) element.get(0).get(0);	
     }
-    // builds a random key and returns it
-    public static String setKey()throws IOException{
-    	Random rand = new Random();
-    	int randomKey = rand.nextInt(10000-1000) + 1000;   	
-    	Sheets service = getSheetsService();
-    	final String range = "G32:P";
-    	List<Request> requests = new ArrayList<>();  
-        //Adding random key to row and column
-        List<CellData> values = new ArrayList<>();
-        values.add(new CellData().setUserEnteredValue(new ExtendedValue().setNumberValue((double)randomKey)));
-        requests.add(new Request()
-        		.setUpdateCells(new UpdateCellsRequest()
-        		.setStart(new GridCoordinate().setSheetId(0).setRowIndex(31).setColumnIndex(6))
-        		.setRows(Arrays.asList(new RowData().setValues(values)))
-        		.setFields("userEnteredValue,userEnteredFormat.backgroundColor")));     
-        BatchUpdateSpreadsheetRequest batchUpdateRequest = new BatchUpdateSpreadsheetRequest().setRequests(requests);
-     	service.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute();
-        ValueRange response = service.spreadsheets().values().get(spreadsheetId, range).execute();
-        List<List<Object>> element = response.getValues();
-    	return (String) element.get(0).get(0);	
-    }
     
-    public static void getStudentData()throws IOException{
+    public static void updateSheet()throws IOException{
      	//Set Range of spread sheet Ex: 
         Sheets service = getSheetsService();
     	final String range = "!A2:E";
@@ -109,20 +90,18 @@ public class SheetsQuickstart {
         if(element == null || element.isEmpty())
             System.out.println("No data found.");
         else{
-            System.out.println("Name -- Student ID");
+            System.out.println("Name -- Major");
             for (List row : element) {
-                // Print columns A and E, which correspond to indices 0 and 2.
-                System.out.printf("%s, %s\n", row.get(0), row.get(2));
+                // Print columns A and E, which correspond to indices 0 and 4.
+                System.out.printf("%s, %s\n", row.get(0), row.get(1));
             }
         }
     }
     
-
     //
     public static void updateSheet(String stringValue, int sheetId, int rowIndex, int columIndex)throws IOException{
     	Sheets service = getSheetsService();
         List<Request> requests = new ArrayList<>();
-        getKey();
         //Adding DATE to row and column
         List<CellData> values = new ArrayList<>();
         values.add(new CellData().setUserEnteredValue(new ExtendedValue().setStringValue((stringValue))));
@@ -134,45 +113,34 @@ public class SheetsQuickstart {
         BatchUpdateSpreadsheetRequest batchUpdateRequest = new BatchUpdateSpreadsheetRequest().setRequests(requests);
      	service.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute();
     }
-
+    
+    public static String makeHash256(String str) {
+    	//Hash the string to bytes
+    	MessageDigest digest = null;
+		try {
+			digest = MessageDigest.getInstance("SHA-256");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+    	byte[] hash = digest.digest(str.getBytes(StandardCharsets.UTF_8));
+    	
+    	//Byte to hex converter to get the hashed value in hexadecimal
+    	StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+        String hex = Integer.toHexString(0xff & hash[i]);
+        if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
     
     public static void main(String[] args) throws IOException {
         
-    	updateSheet("6/10/2018", 0, 0, 6);
+    	updateSheet("6/12/2018", 0, 0, 6);
     	updateSheet("Yes", 0, 1, 6);
-    	
-    	/*
-    	Sheets service = getSheetsService();
-        List<Request> requests = new ArrayList<>();
-        getStudentData();
-        System.out.println(setKey());
-        
-        //Adding DATE to row and column
-        List<CellData> values = new ArrayList<>();
-
-        values.add(new CellData().setUserEnteredValue(new ExtendedValue().setStringValue(("6/10/2018"))));
-
-        requests.add(new Request()
-        		.setUpdateCells(new UpdateCellsRequest()
-        		.setStart(new GridCoordinate().setSheetId(0).setRowIndex(0).setColumnIndex(6))
-        		.setRows(Arrays.asList(new RowData().setValues(values)))
-        		.setFields("userEnteredValue,userEnteredFormat.backgroundColor")));     
-        BatchUpdateSpreadsheetRequest batchUpdateRequest = new BatchUpdateSpreadsheetRequest().setRequests(requests);
-     	service.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute();
-     	
-     	
-     	//Adding YES to row and column
-     	List<CellData> valuesNew = new ArrayList<>();
-     	valuesNew.add(new CellData().setUserEnteredValue(new ExtendedValue().setStringValue(("Yes"))));
-     	requests.add(new Request()
-                 .setUpdateCells(new UpdateCellsRequest()
-                 .setStart(new GridCoordinate().setSheetId(0).setRowIndex(1).setColumnIndex(6))
-                 .setRows(Arrays.asList(new RowData().setValues(valuesNew)))
-                 .setFields("userEnteredValue,userEnteredFormat.backgroundColor")));        
-        BatchUpdateSpreadsheetRequest batchUpdateRequestNew = new BatchUpdateSpreadsheetRequest().setRequests(requests);
-     	service.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequestNew).execute();             	
-
-    */
+    	updateSheet("Yes\nNote:test note", 0, 2, 7);
+    	updateSheet("username",0,34,5);
+    	updateSheet(makeHash256("password"),0,34,6);
 
     }
     
